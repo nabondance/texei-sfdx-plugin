@@ -155,6 +155,11 @@ export default class Set extends SfCommand<CpqSettingsSetResult> {
             this.spinner.stop('Text Value already ok');
           }
         } else if (targetType === 'select') {
+          // Await for Salesforce to update the picklist options in specific settings (c.f. [#164](https://github.com/texei/texei-sfdx-plugin/issues/164))
+          if (['Name Field', 'Description Field', 'Subscription Prorate Precision'].includes(key)) {
+            await new Promise((r) => setTimeout(r, 3000));
+          }
+
           await targetInput.waitForSelector(`xpath///option[text()='${cpqSettings[tabKey][key]}']`);
           const selectedOptionValue = await (await targetInput?.getProperty('value'))?.jsonValue();
 
